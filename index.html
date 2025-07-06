@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador Andrés Gil</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: #fff;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+        
+        /* Fondo de pantalla completa */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: url('https://i.postimg.cc/kXqGwgkc/Whats-App-Image-2025-05-15-at-22-22-44.jpg') no-repeat center center;
+            background-size: cover;
+            filter: brightness(0.7);
+        }
+        
+        /* Contenedor principal */
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        /* Estilo de tarjeta glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Tarjeta principal */
+        .main-card {
+            max-width: 800px;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .highlight {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        /* Botón Mostrar Contenido */
+        .show-content-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 2rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .show-content-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Menús laterales */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            width: 350px;
+            height: 100vh;
+            padding: 2rem 1.5rem;
+            z-index: 100;
+            transition: transform 0.4s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .left-menu {
+            left: -350px;
+            align-items: flex-start;
+        }
+        
+        .right-menu {
+            right: -350px;
+            align-items: flex-end;
+        }
+        
+        .menu-visible {
+            transform: translateX(350px);
+        }
+        
+        .right-menu.menu-visible {
+            transform: translateX(-350px);
+        }
+        
+        /* Menú superior */
+        .top-menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem;
+            z-index: 100;
+            transition: transform 0.4s ease;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .top-menu-visible {
+            transform: translateY(100%);
+        }
+        
+        /* Overlay para cerrar menús */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Enlaces en las tarjetas */
+        .card-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-top: 0.8rem;
+            font-size: 0.95rem;
+        }
+        
+        .card-link i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Estilos para el modal de contraseña */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .password-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .password-box h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .password-submit {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-submit:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .side-menu {
+                width: 280px;
+                padding: 1.5rem 1rem;
+            }
+            
+            .left-menu {
+                left: -280px;
+            }
+            
+            .right-menu {
+                right: -280px;
+            }
+            
+            .menu-visible {
+                transform: translateX(280px);
+            }
+            
+            .right-menu.menu-visible {
+                transform: translateX(-280px);
+            }
+            
+            .glass-card {
+                padding: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            h3 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de pantalla completa -->
+    <div class="background"></div>
+    
+    <!-- Modal de contraseña -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-box">
+            <h3><i class="fas fa-lock"></i> Ingrese la contraseña para acceder</h3>
+            <input type="password" class="password-input" id="passwordInput" placeholder="Contraseña">
+            <button class="password-submit" id="passwordSubmit">Ingresar</button>
+            <p class="error-message" id="errorMessage">Contraseña incorrecta. Intente nuevamente.</p>
+        </div>
+    </div>
+    
+    <!-- Overlay para cerrar menús -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    
+    <!-- Menú izquierdo -->
+    <div class="side-menu left-menu" id="leftMenu">
+        <div class="glass-card">
+            <h3><i class="fas fa-file-alt"></i> Documentos Oficiales</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver documentos</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-chart-line"></i> Estadísticas</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver estadísticas</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-users"></i> Equipo</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver equipo</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-calendar-alt"></i> Agenda</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver agenda</a>
+        </div>
+    </div>
+    
+    <!-- Menú derecho -->
+    <div class="side-menu right-menu" id="rightMenu">
+        <div class="glass-card">
+            <h3><i class="fas fa-cog"></i> Configuración</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Configurar</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-database"></i> Base de Datos</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Acceder</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-file-invoice-dollar"></i> Finanzas</h3>
+            <p>IAcceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver finanzas</a>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fas fa-project-diagram"></i> Proyectos</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver proyectos</a>
+        </div>
+    </div>
+    
+    <!-- Menú superior -->
+    <div class="top-menu" id="topMenu">
+        <div class="glass-card" style="max-width: 200px;">
+            <h3><i class="fas fa-home"></i> Inicio</h3>
+            <p>PAcceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ir</a>
+        </div>
+        
+        <div class="glass-card" style="max-width: 200px;">
+            <h3><i class="fas fa-briefcase"></i> Servicios</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver servicios</a>
+        </div>
+        
+        <div class="glass-card" style="max-width: 200px;">
+            <h3><i class="fas fa-tasks"></i> Procesos</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Ver procesos</a>
+        </div>
+        
+        <div class="glass-card" style="max-width: 200px;">
+            <h3><i class="fas fa-phone"></i> Contacto</h3>
+            <p>Acceder</p>
+            <a href="#" class="card-link"><i class="fas fa-arrow-right"></i> Contactar</a>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="container">
+        <main class="main-content">
+            <div class="glass-card main-card">
+                <h1>Contador Andrés Gil</h1>
+                <h2>Subsecretario de Procesos Administrativos</h2>
+                <p>Bienvenidos a mi espacio profesional, donde la excelencia administrativa es la base para el desarrollo institucional.</p>
+                <p class="highlight">"La eficiencia en los procesos es el camino hacia la excelencia organizacional"</p>
+            </div>
+            
+            <button class="show-content-btn" id="showContentBtn">
+                <i class="fas fa-bars"></i> Mostrar contenido
+            </button>
+        </main>
+        
+        <footer>
+            <p>© 2023 Contador Andrés Gil | Todos los derechos reservados</p>
+            <p>Contacto: contacto@andresgil.com | Tel: +XX XXX XXX XXXX</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Elementos del DOM
+        const showContentBtn = document.getElementById('showContentBtn');
+        const leftMenu = document.getElementById('leftMenu');
+        const rightMenu = document.getElementById('rightMenu');
+        const topMenu = document.getElementById('topMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordSubmit = document.getElementById('passwordSubmit');
+        const errorMessage = document.getElementById('errorMessage');
+        let menusVisible = false;
+        
+        // Mostrar modal de contraseña al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            passwordModal.style.display = 'flex';
+        });
+        
+        // Verificar contraseña
+        passwordSubmit.addEventListener('click', function() {
+            if(passwordInput.value === '2121') {
+                passwordModal.style.display = 'none';
+            } else {
+                errorMessage.style.display = 'block';
+                passwordInput.value = '';
+            }
+        });
+        
+        // También permitir enviar con Enter
+        passwordInput.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                if(passwordInput.value === '2121') {
+                    passwordModal.style.display = 'none';
+                } else {
+                    errorMessage.style.display = 'block';
+                    passwordInput.value = '';
+                }
+            }
+        });
+        
+        // Mostrar/ocultar menús
+        showContentBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            if (menusVisible) {
+                leftMenu.classList.remove('menu-visible');
+                rightMenu.classList.remove('menu-visible');
+                topMenu.classList.remove('top-menu-visible');
+                menuOverlay.classList.remove('overlay-visible');
+            } else {
+                leftMenu.classList.add('menu-visible');
+                rightMenu.classList.add('menu-visible');
+                topMenu.classList.add('top-menu-visible');
+                menuOverlay.classList.add('overlay-visible');
+            }
+            
+            menusVisible = !menusVisible;
+        });
+        
+        // Cerrar menús al hacer clic fuera
+        menuOverlay.addEventListener('click', function() {
+            leftMenu.classList.remove('menu-visible');
+            rightMenu.classList.remove('menu-visible');
+            topMenu.classList.remove('top-menu-visible');
+            menuOverlay.classList.remove('overlay-visible');
+            menusVisible = false;
+        });
+        
+        // Prevenir que el clic en los menús los cierre
+        leftMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        rightMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        topMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>
